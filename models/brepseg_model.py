@@ -235,7 +235,8 @@ class BrepSeg(pl.LightningModule):
             # masked出实际face feature
             pred_feature = out_face_feature[i][:end_index + 1]  # (n_node)
 
-            output_path = pathlib.Path("/home/zhang/datasets_segmentation/2_val")
+            output_path = pathlib.Path("results/BrepMFR/pred_txt")
+            output_path.mkdir(parents=True, exist_ok=True)
             file_name = "feature_" + str(batch["id"][i].long().detach().cpu().numpy()) + ".txt"
             file_path = os.path.join(output_path, file_name)
             feature_file = open(file_path, mode="a")
@@ -308,7 +309,7 @@ class BrepSeg(pl.LightningModule):
         # 学习策略
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5,
                                                                threshold=0.0001, threshold_mode='rel',
-                                                               min_lr=0.000001, cooldown=2, verbose=False)
+                                                               min_lr=0.000001, cooldown=2)
 
         return {"optimizer": optimizer,
                 "lr_scheduler": {"scheduler": scheduler, "interval": "epoch", "frequency": 1, "monitor": "eval_loss"}
