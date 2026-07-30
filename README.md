@@ -1,3 +1,5 @@
+> **Fork notice (local baseline reproduction):** this fork adapts [BrepMFR](https://github.com/zhangshuming0668/BrepMFR) (upstream baseline `91f5a73`) to a modern local stack — Windows, Python 3.10, PyTorch 2.11.0+cu128, DGL 2.2.1, PyTorch Lightning 1.9.5. All changes are numbered (`adapt#1`–`adapt#6`), one commit each, and fully documented in [ENVIRONMENT.md](ENVIRONMENT.md); environment fingerprint in `environment-adapted.yml`. Smoke test on the official CADSynth dataset (300/100/100 subset, seeds 42/43/44, 10 epochs): per-face accuracy 0.1914 vs. 0.04 random (LR-warmup-limited; see ENVIRONMENT.md §5).
+
 # BrepMFR
 
 Code for BrepMFR: Enhancing machining feature recognition in B-rep models through deep learning and domain adaptation.
