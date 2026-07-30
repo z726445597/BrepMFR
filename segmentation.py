@@ -3,6 +3,7 @@ import argparse
 import pathlib
 import time
 import torch
+torch.serialization.add_safe_globals([argparse.Namespace])
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
