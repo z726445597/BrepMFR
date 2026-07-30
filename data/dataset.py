@@ -68,8 +68,10 @@ class CADSynth(Dataset):
         pyg_graph.edge_ang = graph.edata["a"].type(torch.float)  # edge_ang[num_edges]
         pyg_graph.edge_conv = graph.edata["c"].type(torch.int)   # edge_conv[num_edges]
 
-        dense_adj = graph.adj().to_dense().type(torch.int)
         n_nodes = graph.num_nodes()
+        _src, _dst = graph.edges()
+        dense_adj = torch.zeros((n_nodes, n_nodes), dtype=torch.int)
+        dense_adj[_src, _dst] = 1
         pyg_graph.node_degree = dense_adj.long().sum(dim=1).view(-1)
         pyg_graph.attn_bias = torch.zeros([n_nodes + 1, n_nodes + 1], dtype=torch.float)
 
@@ -204,8 +206,10 @@ class TransferDataset(Dataset):
         pyg_graph.edge_ang = graph.edata["a"].type(torch.float)  # edge_ang[num_edges]
         pyg_graph.edge_conv = graph.edata["c"].type(torch.int)  # edge_conv[num_edges]
 
-        dense_adj = graph.adj().to_dense().type(torch.int)
         n_nodes = graph.num_nodes()
+        _src, _dst = graph.edges()
+        dense_adj = torch.zeros((n_nodes, n_nodes), dtype=torch.int)
+        dense_adj[_src, _dst] = 1
         pyg_graph.in_degree = dense_adj.long().sum(dim=1).view(-1)
         pyg_graph.attn_bias = torch.zeros([n_nodes + 1, n_nodes + 1], dtype=torch.float)
 
