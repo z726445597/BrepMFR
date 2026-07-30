@@ -111,7 +111,7 @@ class CADSynth(Dataset):
             num_workers=num_workers,
             drop_last=True,
             pin_memory=True,
-            prefetch_factor=2,
+            prefetch_factor=2 if num_workers > 0 else None,
             persistent_workers=False
         )
 
@@ -259,6 +259,6 @@ class TransferDataset(Dataset):
             num_workers=num_workers,
             drop_last=True,
             pin_memory=True,
-            prefetch_factor=2,
+            prefetch_factor=2 if num_workers > 0 else None,
             persistent_workers=False
         )
