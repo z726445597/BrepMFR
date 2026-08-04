@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
+# =============================================================================
+# u-stage adapt (B 类, 公平性配置统一; 逐条登记见 U_COMMITS.md):
+#   [1] train 入口 + seed_everything(24, workers=True)            —— 四管线种子统一 24
+#   [2] Trainer callbacks + EarlyStopping(monitor="eval_loss",
+#       mode="min", patience=50)                                  —— 早停耐心统一 50
+# 官方逻辑(模型/优化器/调度/warmup/augmentation/loss/grad clip)零改动。
+# =============================================================================
 import argparse
 import pathlib
 import time
 import torch
 torch.serialization.add_safe_globals([argparse.Namespace])
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.utilities.seed import seed_everything
 
 from data.dataset import CADSynth
 from models.brepseg_model import BrepSeg
@@ -61,6 +69,7 @@ if not results_path.exists():
     results_path.mkdir(parents=True, exist_ok=True)
 
 # Define a path to save the results based date and time. E.g.
+# results/args.experiment_name/0430/123103
 month_day = time.strftime("%m%d")
 hour_min_second = time.strftime("%H%M%S")
 checkpoint_callback = ModelCheckpoint(
@@ -70,10 +79,17 @@ checkpoint_callback = ModelCheckpoint(
     save_top_k=10,
     save_last=True,
 )
+# u-stage adapt[2]: 四管线统一 EarlyStopping patience=50 (monitor 随官方 eval_loss)
+early_stop_callback = EarlyStopping(
+    monitor="eval_loss",
+    mode="min",
+    patience=50,
+    verbose=True,
+)
 
 trainer = Trainer.from_argparse_args(
     args,
-    callbacks=[checkpoint_callback],
+    callbacks=[checkpoint_callback, early_stop_callback],
     logger=TensorBoardLogger(
         str(results_path), name=month_day, version=hour_min_second,
     ),
@@ -89,6 +105,8 @@ else:
     raise ValueError("Unsupported dataset")
 
 if args.traintest == "train":
+    # u-stage adapt[1]: 四管线统一种子 24
+    seed_everything(24, workers=True)
     # Train/val
     print(
         f"""
@@ -128,4 +146,3 @@ else:
     )
     model = BrepSeg.load_from_checkpoint(args.checkpoint)
     trainer.test(model, dataloaders=[test_loader], ckpt_path=args.checkpoint, verbose=False)
-    
